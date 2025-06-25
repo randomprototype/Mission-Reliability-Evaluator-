@@ -559,7 +559,7 @@ col1, col2 = st.columns(2)
 with col1:
     W = st.number_input("WORKLOAD (W, GOPS)", value=600.0)
     g = st.number_input("PROCESSING SPEED (G, GOPS/HR)", value=12.0)
-    lambda_ = st.number_input("SHOCK RATE (LAMBDA, /HR)", value=0.25, step=0.01)
+    lambda = st.number_input("SHOCK RATE (LAMBDA, /HR)", value=0.25, step=0.01)
     lambda_tilde = st.number_input("SHOCK RATE DURING RESCUE (LAMBDA_TILDE, /HR)", value=0.06, step=0.01)
     alpha = st.number_input("SHARING FACTOR (ALPHA)", value=0.8, step=0.1)
     w = st.number_input("INSPECTION WORKLOAD (W, GOPS)", value=25.0)
@@ -598,11 +598,11 @@ def P(t, m, lambda_val):
     return poisson.pmf(m, lambda_val * t)
 
 def u(t):
-    return lambda_ * sum(P(t, m-1, lambda_) * (1 - z(m)) * Z(m-1) for m in range(1, max_m))
+    return lambda * sum(P(t, m-1, lambda) * (1 - z(m)) * Z(m-1) for m in range(1, max_m))
 
 def u_tilde(t, tau_i, theta_val):
     return lambda_tilde * sum(
-        P(tau_i + theta_val, k, lambda_) * 
+        P(tau_i + theta_val, k, lambda) * 
         sum(P(t, l, lambda_tilde) * Z(k + l) for l in range(max_m))
         for k in range(max_m)
     )
@@ -614,7 +614,7 @@ def calculate_mission_success_probability(tau, N, T, theta_val):
     tau = [0] + (list(tau) if np.isscalar(tau) or len(tau) > 0 else []) + [T]
     R = 0
     if N > 0:
-        R += (1 - q) ** N * sum(P(T, m, lambda_) * Z(m) for m in range(max_m))
+        R += (1 - q) ** N * sum(P(T, m, lambda) * Z(m) for m in range(max_m))
         for i in range(1, N + 1):
             integral, _ = quad(lambda t: (1 - V(T - t)) * u(t), 
                               tau[i-1] + epsilon * theta_val, 
@@ -624,7 +624,7 @@ def calculate_mission_success_probability(tau, N, T, theta_val):
                           tau[N] + epsilon * theta_val, T)
         R += (1 - q) ** N * integral
     else:
-        R += sum(P(T, m, lambda_) * Z(m) for m in range(max_m))
+        R += sum(P(T, m, lambda) * Z(m) for m in range(max_m))
         integral, _ = quad(lambda t: (1 - V(T - t)) * u(t), 0, T)
         R += integral
     return R
@@ -642,7 +642,7 @@ def calculate_failure_avoidance_probability(tau, N, T, theta_val):
             S += (1 - q) ** (k-1) * p ** (i-k) * (1 - p) * integral
     for i in range(1, N + 1):
         phi = phi_i(tau, i)
-        term1 = sum(P(tau[i] + theta_val, k, lambda_) * 
+        term1 = sum(P(tau[i] + theta_val, k, lambda) * 
                     sum(P(phi, l, lambda_tilde) * Z(k + l) for l in range(max_m))
                     for k in range(max_m))
         integral, _ = quad(
@@ -653,8 +653,8 @@ def calculate_failure_avoidance_probability(tau, N, T, theta_val):
     return S
 
 def objective_1(lambda_val):
-    global lambda_
-    lambda_ = lambda_val
+    global lambda
+    lambda = lambda_val
     N = 0
     theta_val = theta()
     T = total_mission_time(N)
@@ -663,8 +663,8 @@ def objective_1(lambda_val):
     return R, S
 
 def objective_2(N, lambda_val):
-    global lambda_
-    lambda_ = lambda_val
+    global lambda
+    lambda = lambda_val
     theta_val = theta()
     T = total_mission_time(N)
     def objective_de(tau):
@@ -676,8 +676,8 @@ def objective_2(N, lambda_val):
     return R_de, S_de, tau_de
 
 def objective_3(lambda_val):
-    global lambda_
-    lambda_ = lambda_val
+    global lambda
+    lambda = lambda_val
     N = 1
     theta_val = theta()
     T = total_mission_time(N)
@@ -693,8 +693,8 @@ def objective_3(lambda_val):
     return R_de, S_de, tau_de
 
 def objective_4(lambda_val):
-    global lambda_
-    lambda_ = lambda_val
+    global lambda
+    lambda = lambda_val
     N = 1
     theta_val = theta()
     T = total_mission_time(N)
@@ -715,13 +715,13 @@ if st.button("CALCULATE"):
     
     # OBJECTIVE 1
     st.subheader("OBJECTIVE 1: R = S, NO INSPECTIONS")
-    R, S = objective_1(lambda_)
+    R, S = objective_1(lambda)
     st.write(f"MISSION SUCCESS PROBABILITY (R): {R:.3f}")
     st.write(f"FAILURE AVOIDANCE PROBABILITY (S): {S:.3f}")
     
     # OBJECTIVE 2
     st.subheader("OBJECTIVE 2: MAXIMIZE S")
-    R_de, S_de, tau_de = objective_2(N, lambda_)
+    R_de, S_de, tau_de = objective_2(N, lambda)
     st.write(f"MISSION SUCCESS PROBABILITY (R): {R_de:.3f}")
     st.write(f"FAILURE AVOIDANCE PROBABILITY (S): {S_de:.3f}")
     st.write(f"OPTIMAL INSPECTION TIME (TAU_1): {tau_de[0]:.3f} HR")
@@ -760,7 +760,7 @@ if st.button("CALCULATE"):
     
     # OBJECTIVE 3
     st.subheader("OBJECTIVE 3: MAXIMIZE R S.T. S >= 0.90")
-    R_de, S_de, tau_de = objective_3(lambda_)
+    R_de, S_de, tau_de = objective_3(lambda)
     st.write(f"MISSION SUCCESS PROBABILITY (R): {R_de:.3f}")
     st.write(f"FAILURE AVOIDANCE PROBABILITY (S): {S_de:.3f}")
     st.write(f"OPTIMAL INSPECTION TIME (TAU_1): {tau_de[0]:.3f} HR")
@@ -794,7 +794,7 @@ if st.button("CALCULATE"):
     
     # OBJECTIVE 4
     st.subheader("OBJECTIVE 4: MAXIMIZE R S.T. S >= 0.85")
-    R_de, S_de, tau_de = objective_4(lambda_)
+    R_de, S_de, tau_de = objective_4(lambda)
     st.write(f"MISSION SUCCESS PROBABILITY (R): {R_de:.3f}")
     st.write(f"FAILURE AVOIDANCE PROBABILITY (S): {S_de:.3f}")
     st.write(f"OPTIMAL INSPECTION TIME (TAU_1): {tau_de[0]:.3f} HR")
