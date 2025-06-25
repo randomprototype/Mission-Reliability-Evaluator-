@@ -631,7 +631,7 @@ def z(k):
     return 1 if k == 0 else 0.97 * (0.85) ** (k - 1)
 
 def Z(m):
-    return np.prod([z(i) for i in range(m + 1))
+    return np.prod(z(i) for i in range(m + 1))
 
 def P(t, m, lambda_val):
     return poisson.pmf(m, lambda_val * t)
