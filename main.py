@@ -574,7 +574,7 @@ with col2:
     mu1 = st.number_input("RESCUE TIME GROWTH (MU_1)", value=0.1, step=0.1)
     eta = st.number_input("WEIBULL SCALE (ETA, HR)", value=120.0)
     beta = st.number_input("WEIBULL SHAPE (BETA)", value=2.0)
-    max_m = st.number_input("MAX SHOCKS (M_MAX)", value=10, step=1, format="%d")
+    max_m = st.number_input("MAX SHOCKS (M_MAX)", value=5, step=1, format="%d")
     N = st.number_input("NUMBER OF INSPECTIONS (N)", value=1, step=1, format="%d")
     S_star_90 = st.number_input("CONSTRAINT S >= 0.90 (S*)", value=0.90, step=0.01)
 
