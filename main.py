@@ -416,7 +416,7 @@ if st.button("TECHNICIAN PROFILES & SKILLS TRACKING") or st.session_state.get("f
     # FORM FOR ADDING OR EDITING TECHNICIANS
     with st.form(key="technician_form"):
         print("CREATING TECHNICIAN FORM...")
-        name = st.text_input("NAME", value=st.session_state.get("technician_name", "JOHNSON DOE"), key="technician_name_input")
+        name = st.text_input("NAME", value=st.session_state.get("technician_name", "AUGUSTO OLUWAFEMI JOHNSON"), key="technician_name_input")
         technician_id = st.text_input("TECHNICIAN ID", value=st.session_state.get("technician_id", "TECH001"), key="technician_id_input")
         contact_details = st.text_area("CONTACT DETAILS", value=st.session_state.get("contact_details", "PHONE: 555-1234\nEMAIL: JOHNSON.DOE@EXAMPLE.COM"), key="contact_details_input")
         certifications = st.text_area("CERTIFICATIONS & LICENSES", value=st.session_state.get("certifications", "CERTIFIED MECHANICAL MAINTENANCE TECHNICIAN"), key="certifications_input")
@@ -742,5 +742,6 @@ if st.button("CALCULATE"):
     st.write(f"OPTIMAL INSPECTION TIME (TAU_1): {tau_de[0]:.3f} HR")
 
 # ADD DATE AND TIME AND COPYRIGHT NOTICE AT THE BOTTOM
-st.write("LAST UPDATED: WEDNESDAY, JUNE 25, 2025, 06:57 AM -03")
+st.write("LAST UPDATED: THURSDAY, DECEMBER 25, 2025, 06:57 AM -03")
 st.write("© 2025 ALL RIGHTS RESERVED.")
+
